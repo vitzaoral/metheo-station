@@ -27,6 +27,6 @@ void MetheoData::setData(void)
     }
     else
     {
-        Serial.println("SHT30 error!");
+        Serial.println("SHT30 sensor error!");
     }
 }
