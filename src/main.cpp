@@ -9,6 +9,7 @@ InternetConnection connection;
 void setup()
 {
     // TODO: vyzkouset OTA
+    // TODO: nejdrive ziskat teplotu a az pak inicializovat wifi...ale asi neresit pro pripad deepSleep
     Serial.begin(9600);
     delay(100);
     connection.initialize();
