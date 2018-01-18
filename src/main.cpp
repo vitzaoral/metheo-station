@@ -1,10 +1,8 @@
 #include <Arduino.h>
 #include <MetheoData.h>
-#include <OledDisplay.h>
 #include <InternetConnection.h>
 
 MetheoData metheoData;
-OledDisplay oledDisplay;
 InternetConnection connection;
 
 // Set up environment before loop
@@ -20,7 +18,6 @@ void setup()
 void loop()
 {
     metheoData.setData();
-    oledDisplay.printMetheoDataToDisplay(metheoData);
     connection.setMeteoDataToThingSpeakObject(metheoData);
     connection.sendDataToThingSpeakApi();
 
