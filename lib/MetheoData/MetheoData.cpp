@@ -16,7 +16,7 @@ void MetheoData::setData(void)
 {
     shtTemperature = 0;
     shtHumidity = 0;
-    bmpPresure = bmp.readPressure();
+    bmpPresure = bmp.readPressure() / 100;
     bmpTemperature = bmp.readTemperature();
     bmpRealAltitude = bmp.readAltitude(101500);
 

@@ -8,9 +8,11 @@
 class InternetConnection
 {
 public:
-  void initialize(void);
+  bool initializeThingSpeak(void);
+  bool initializeBlynk(void);
   void setMeteoDataToThingSpeakObject(MetheoData);
   bool sendDataToThingSpeakApi(void);
+  void sendDataToBlynk(MetheoData);
 };
 
 #endif

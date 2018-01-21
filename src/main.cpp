@@ -9,10 +9,9 @@ InternetConnection connection;
 void setup()
 {
     // TODO: vyzkouset OTA
-    // TODO: nejdrive ziskat teplotu a az pak inicializovat wifi...ale asi neresit pro pripad deepSleep
     Serial.begin(9600);
-    delay(100);
-    connection.initialize();
+    connection.initializeThingSpeak();
+    connection.initializeBlynk();
 }
 
 // Excecute code in forever loop
@@ -21,8 +20,7 @@ void loop()
     metheoData.setData();
     connection.setMeteoDataToThingSpeakObject(metheoData);
     connection.sendDataToThingSpeakApi();
-
-    // TODO: co kdyz chci zobrazovat data co 10 sekund ale posilat je co 1 minutu
-    // pouzit millis() nebo ticker.h
-    delay(60000);
+    connection.sendDataToBlynk(metheoData);
+   
+    delay(15000);
 }
