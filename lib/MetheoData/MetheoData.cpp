@@ -14,6 +14,7 @@ MetheoData::MetheoData()
 
 void MetheoData::setData(void)
 {
+    // TODO: nezapisovat spicky, napr teplota 2000000000 apod., v takovem pripade neposlat na API, nejakou fci ktera rekne true/false validni data v hranicich
     shtTemperature = 0;
     shtHumidity = 0;
     bmpPresure = bmp.readPressure() / 100.0;

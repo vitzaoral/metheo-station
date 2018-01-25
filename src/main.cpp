@@ -6,7 +6,7 @@ MetheoData metheoData;
 InternetConnection connection;
 
 // Deep sleep interval in minutes
-const int deepSleepInterval = 5;
+const int deepSleepInterval = 1;
 
 // Connections to APIs are OK
 bool apisAreConnected = false;
@@ -21,7 +21,7 @@ void initializeInternetConnection()
 
 void deepSleep()
 {
-    ESP.deepSleep(deepSleepInterval * 1000 * 60);
+    ESP.deepSleep(deepSleepInterval * 1000000 * 60);
 }
 
 // Set up environment before loop
@@ -47,6 +47,5 @@ void loop()
         Serial.println("No connection to apis");
     }
 
-    // deepSleep();
-    delay(60000);
+    deepSleep();
 }
