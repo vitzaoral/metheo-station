@@ -38,9 +38,15 @@ void loop()
     if (apisAreConnected)
     {
         metheoData.setData();
-        connection.setMeteoDataToThingSpeakObject(metheoData);
-        connection.sendDataToThingSpeakApi();
-        connection.sendDataToBlynk(metheoData);
+        if (metheoData.dataAreValid())
+        {
+            connection.setMeteoDataToThingSpeakObject(metheoData);
+            connection.sendDataToThingSpeakApi();
+            connection.sendDataToBlynk(metheoData);
+        }
+        else {
+            Serial.println("MetheoData are invalid");
+        }
     }
     else
     {

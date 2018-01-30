@@ -16,6 +16,7 @@ public:
   float bmpRealAltitude;
 
   void setData(void);
+  bool dataAreValid(void);
 };
 
 #endif

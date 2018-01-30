@@ -14,9 +14,8 @@ MetheoData::MetheoData()
 
 void MetheoData::setData(void)
 {
-    // TODO: nezapisovat spicky, napr teplota 2000000000 apod., v takovem pripade neposlat na API, nejakou fci ktera rekne true/false validni data v hranicich
-    shtTemperature = 0;
-    shtHumidity = 0;
+    shtTemperature = 1000;
+    shtHumidity = 1000;
     bmpPresure = bmp.readPressure() / 100.0;
     bmpTemperature = bmp.readTemperature();
     bmpRealAltitude = bmp.readAltitude(101500);
@@ -30,4 +29,12 @@ void MetheoData::setData(void)
     {
         Serial.println("SHT30 sensor error!");
     }
+}
+
+bool MetheoData::dataAreValid(void)
+{
+    return shtTemperature <= 100.0 && shtTemperature >= -100.0 &&
+           shtHumidity <= 100.0 && shtHumidity >= 0.0 &&
+           bmpPresure <= 1200.0 && bmpPresure >= 800.0 &&
+           bmpTemperature <= 100.0 && bmpTemperature >= -100.0;
 }
