@@ -18,7 +18,7 @@ void MetheoData::setData(void)
     shtHumidity = 1000;
     bmpPresure = bmp.readPressure() / 100.0;
     bmpTemperature = bmp.readTemperature();
-    bmpRealAltitude = bmp.readAltitude(101500);
+    // bmpRealAltitude = bmp.readAltitude(101500);
 
     if (sht30.get() == 0)
     {
