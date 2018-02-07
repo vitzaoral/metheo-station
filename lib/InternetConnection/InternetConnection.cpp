@@ -63,19 +63,19 @@ void InternetConnection::setMeteoDataToThingSpeakObject(MetheoData metheoData)
 
 void InternetConnection::sendDataToBlynk(MetheoData metheoData)
 {
-    // create data to send to Blynk. For some reason need to call connect.
-    if (Blynk.connect() == 1)
+    // create data to send to Blynk
+    if (Blynk.connect())
     {
-        Blynk.run();
         Blynk.virtualWrite(1, metheoData.shtTemperature);
         Blynk.virtualWrite(2, metheoData.bmpTemperature);
         Blynk.virtualWrite(3, metheoData.shtHumidity);
         Blynk.virtualWrite(4, metheoData.bmpPresure);
+        Blynk.run();
         Serial.println("Send data to Blynk OK");
     }
     else
     {
-        Serial.println("Error during sending data to Blynk");
+        Serial.println("Blynk is not connected");
     }
 }
 
