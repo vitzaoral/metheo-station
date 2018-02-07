@@ -9,7 +9,6 @@ const char *thingSpeakWriteApiKey = settings.thingSpeakWriteApiKey;
 const unsigned long thingSpeakChannelId = settings.thingSpeakChannelId;
 const char *ssid = settings.ssid;
 const char *password = settings.password;
-const char *server = settings.thingSpeakserver;
 const char *blynkAuth = settings.blynkAuth;
 
 // number of attempts to connecting WIFI,API etc.
@@ -44,24 +43,13 @@ bool InternetConnection::initializeThingSpeak(void)
 // Initialize WiFi connection and Blynk. Return true if connection is sucessfull.
 bool InternetConnection::initializeBlynk(void)
 {
+    // TODO: problem, pokud mam spatny klic (pokud nefunguje Blynk tak mozna ne)
     Serial.println("WiFi connecting to Blynk");
     Blynk.begin(blynkAuth, ssid, password);
-    int i = 0;
-
-    while (Blynk.connect() != 1)
-    {
-        delay(500);
-        Serial.print(".");
-        if (i == timeout)
-        {
-            Serial.println("Timeout on Blynk connection");
-            return false;
-        }
-        i++;
-    }
-
-    Serial.println("Blynk connected");
-    return true;
+    Blynk.run();
+    
+    Serial.println(Blynk.connected() ? "Blynk connected" : "Timeout on Blynk");
+    return Blynk.connected();
 }
 
 void InternetConnection::setMeteoDataToThingSpeakObject(MetheoData metheoData)
