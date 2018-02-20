@@ -1,12 +1,11 @@
 #include "MetheoData.h"
 
-SHT3X sht30(0x45);
-Adafruit_BMP085 bmp;
+Adafruit_BME280 bme;
 
 // Initialize and get metheorological data
 MetheoData::MetheoData()
 {
-    if (!bmp.begin())
+    if (!bme.begin())
     {
         Serial.println("Could not find a valid BMP100 sensor on oaddress 0x45!");
     }
@@ -14,27 +13,14 @@ MetheoData::MetheoData()
 
 void MetheoData::setData(void)
 {
-    shtTemperature = 1000;
-    shtHumidity = 1000;
-    bmpPresure = bmp.readPressure() / 100.0;
-    bmpTemperature = bmp.readTemperature();
-    // bmpRealAltitude = bmp.readAltitude(101500);
-
-    if (sht30.get() == 0)
-    {
-        shtTemperature = sht30.cTemp;
-        shtHumidity = sht30.humidity;
-    }
-    else
-    {
-        Serial.println("SHT30 sensor error!");
-    }
+    presure = bme.readPressure() / 100.0;
+    temperature = bme.readTemperature();
+    humidity = bme.readHumidity();
 }
 
 bool MetheoData::dataAreValid(void)
 {
-    return shtTemperature <= 100.0 && shtTemperature >= -100.0 &&
-           shtHumidity <= 100.0 && shtHumidity >= 0.0 &&
-           bmpPresure <= 1200.0 && bmpPresure >= 800.0 &&
-           bmpTemperature <= 100.0 && bmpTemperature >= -100.0;
+    return temperature <= 100.0 && temperature >= -100.0 &&
+           humidity <= 100.0 && humidity >= 0.0 &&
+           presure <= 1200.0 && presure >= 800.0;
 }

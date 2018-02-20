@@ -2,18 +2,22 @@
 #define __MetheoData_H
 
 #include <Arduino.h>
-#include <WEMOS_SHT3X.h>
-#include <Adafruit_BMP085.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
+
+#define BME_SCK 13
+#define BME_MISO 12
+#define BME_MOSI 11
+#define BME_CS 10
 
 class MetheoData
 {
 public:
   MetheoData();
-  float shtTemperature;
-  float shtHumidity;
-  float bmpPresure;
-  float bmpTemperature;
-  float bmpRealAltitude;
+  float temperature;
+  float humidity;
+  float presure;
+  float realAltitude;
 
   void setData(void);
   bool dataAreValid(void);

@@ -55,10 +55,9 @@ bool InternetConnection::initializeBlynk(void)
 void InternetConnection::setMeteoDataToThingSpeakObject(MetheoData metheoData)
 {
     // create data to send to ThingSpeak
-    ThingSpeak.setField(1, metheoData.shtTemperature);
-    ThingSpeak.setField(2, metheoData.bmpTemperature);
-    ThingSpeak.setField(3, metheoData.bmpPresure);
-    ThingSpeak.setField(4, metheoData.shtHumidity);
+    ThingSpeak.setField(1, metheoData.temperature);
+    ThingSpeak.setField(3, metheoData.presure);
+    ThingSpeak.setField(4, metheoData.humidity);
 }
 
 void InternetConnection::sendDataToBlynk(MetheoData metheoData)
@@ -66,10 +65,9 @@ void InternetConnection::sendDataToBlynk(MetheoData metheoData)
     // create data to send to Blynk
     if (Blynk.connect())
     {
-        Blynk.virtualWrite(1, metheoData.shtTemperature);
-        Blynk.virtualWrite(2, metheoData.bmpTemperature);
-        Blynk.virtualWrite(3, metheoData.shtHumidity);
-        Blynk.virtualWrite(4, metheoData.bmpPresure);
+        Blynk.virtualWrite(1, metheoData.temperature);
+        Blynk.virtualWrite(3, metheoData.humidity);
+        Blynk.virtualWrite(4, metheoData.presure);
         Blynk.run();
         Serial.println("Send data to Blynk OK");
     }
