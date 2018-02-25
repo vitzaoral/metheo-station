@@ -4,3 +4,4 @@
 .vscode/c_cpp_properties.json
 src/settings.cpp
 .vscode/launch.json
+.vscode/*.db
