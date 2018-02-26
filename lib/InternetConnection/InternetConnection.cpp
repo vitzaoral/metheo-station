@@ -18,7 +18,6 @@ const int timeout = 10;
 bool InternetConnection::initializeThingSpeak(void)
 {
     WiFi.begin(ssid, password);
-
     Serial.print("WiFi connecting to: ");
     Serial.println(ssid);
     int i = 0;
@@ -43,12 +42,13 @@ bool InternetConnection::initializeThingSpeak(void)
 // Initialize WiFi connection and Blynk. Return true if connection is sucessfull.
 bool InternetConnection::initializeBlynk(void)
 {
-    // TODO: problem, pokud mam spatny klic (pokud nefunguje Blynk tak mozna ne)
+
     Serial.println("WiFi connecting to Blynk");
-    Blynk.begin(blynkAuth, ssid, password);
-    Blynk.run();
-    
-    Serial.println(Blynk.connected() ? "Blynk connected" : "Timeout on Blynk");
+    Blynk.config(blynkAuth);
+
+    // timeout 3sec
+    Blynk.connect(1000);
+    Serial.println(Blynk.connected() ? "Blynk connected" : "Timeout on Blynk or no internet connection");
     return Blynk.connected();
 }
 

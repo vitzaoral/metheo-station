@@ -21,6 +21,8 @@ void initializeInternetConnection()
 
 void deepSleep()
 {
+    Serial.println("Good night");
+    Serial.println("");
     ESP.deepSleep(deepSleepInterval * 1000000 * 60);
 }
 
@@ -29,6 +31,7 @@ void setup()
 {
     // TODO: vyzkouset OTA
     Serial.begin(9600);
+    Serial.println("");
     initializeInternetConnection();
 }
 
