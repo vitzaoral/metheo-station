@@ -26,11 +26,27 @@ void deepSleep()
     ESP.deepSleep(deepSleepInterval * 1000000 * 60);
 }
 
+/*
+ * Voltage divider of 100k+220k over 100k
+ * gives 100/420k
+ * ergo 4.2V -> 1Volt
+ * Max input on A0=1Volt ->1023
+ * 4.2*(Raw/1023)=Vbat
+ */
+float readBatteryVoltage()
+{
+    int raw = analogRead(A0);
+    float volt = raw / 1023.0;
+    volt = volt * 4.2;
+    return volt;
+}
+
 // Set up environment before loop
 void setup()
 {
     // TODO: vyzkouset OTA
     Serial.begin(9600);
+    pinMode(A0, INPUT);
     Serial.println("");
     initializeInternetConnection();
 }
@@ -43,11 +59,13 @@ void loop()
         metheoData.setData();
         if (metheoData.dataAreValid())
         {
-            connection.setMeteoDataToThingSpeakObject(metheoData);
+            float batteryVoltage = readBatteryVoltage();
+            connection.setMeteoDataToThingSpeakObject(metheoData, batteryVoltage);
             connection.sendDataToThingSpeakApi();
-            connection.sendDataToBlynk(metheoData);
+            connection.sendDataToBlynk(metheoData, batteryVoltage);
         }
-        else {
+        else
+        {
             Serial.println("MetheoData are invalid");
         }
     }

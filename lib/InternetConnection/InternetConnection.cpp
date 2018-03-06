@@ -52,20 +52,22 @@ bool InternetConnection::initializeBlynk(void)
     return Blynk.connected();
 }
 
-void InternetConnection::setMeteoDataToThingSpeakObject(MetheoData metheoData)
+void InternetConnection::setMeteoDataToThingSpeakObject(MetheoData metheoData, float batteryVoltage)
 {
     // create data to send to ThingSpeak
     ThingSpeak.setField(1, metheoData.temperature);
+    ThingSpeak.setField(2, batteryVoltage);
     ThingSpeak.setField(3, metheoData.presure);
     ThingSpeak.setField(4, metheoData.humidity);
 }
 
-void InternetConnection::sendDataToBlynk(MetheoData metheoData)
+void InternetConnection::sendDataToBlynk(MetheoData metheoData, float batteryVoltage)
 {
     // create data to send to Blynk
     if (Blynk.connect())
     {
         Blynk.virtualWrite(1, metheoData.temperature);
+        Blynk.virtualWrite(2, batteryVoltage);
         Blynk.virtualWrite(3, metheoData.humidity);
         Blynk.virtualWrite(4, metheoData.presure);
         Blynk.run();

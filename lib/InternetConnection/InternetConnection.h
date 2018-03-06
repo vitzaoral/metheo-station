@@ -10,9 +10,9 @@ class InternetConnection
 public:
   bool initializeThingSpeak(void);
   bool initializeBlynk(void);
-  void setMeteoDataToThingSpeakObject(MetheoData);
+  void setMeteoDataToThingSpeakObject(MetheoData, float);
   bool sendDataToThingSpeakApi(void);
-  void sendDataToBlynk(MetheoData);
+  void sendDataToBlynk(MetheoData, float);
 };
 
 #endif
