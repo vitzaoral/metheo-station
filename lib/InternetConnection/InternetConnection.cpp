@@ -17,7 +17,14 @@ const int timeout = 10;
 // Initialize WiFi connection and ThingSpeak. Return true if connection is sucessfull.
 bool InternetConnection::initializeThingSpeak(void)
 {
-    WiFi.begin(ssid, password);
+    if (WiFi.SSID() != ssid)
+    {
+        WiFi.begin(ssid, password);
+        WiFi.persistent(true);
+        WiFi.setAutoConnect(true);
+        WiFi.setAutoReconnect(true);
+    }
+
     Serial.print("WiFi connecting to: ");
     Serial.println(ssid);
     int i = 0;
@@ -42,8 +49,8 @@ bool InternetConnection::initializeThingSpeak(void)
 // Initialize WiFi connection and Blynk. Return true if connection is sucessfull.
 bool InternetConnection::initializeBlynk(void)
 {
-
     Serial.println("WiFi connecting to Blynk");
+    // TODO: tohle vola wifi.begin, neda se to nejak obejit?
     Blynk.config(blynkAuth);
 
     // timeout 3sec
