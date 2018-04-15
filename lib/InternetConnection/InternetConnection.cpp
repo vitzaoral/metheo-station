@@ -68,15 +68,16 @@ void InternetConnection::setMeteoDataToThingSpeakObject(MetheoData metheoData, f
     ThingSpeak.setField(4, metheoData.humidity);
 }
 
-void InternetConnection::sendDataToBlynk(MetheoData metheoData, float batteryVoltage)
+void InternetConnection::sendDataToBlynk(MetheoData metheoData, float batteryVoltage, bool validData)
 {
     // create data to send to Blynk
-    if (Blynk.connect())
+    if (Blynk.connected())
     {
-        Blynk.virtualWrite(1, metheoData.temperature);
-        Blynk.virtualWrite(2, batteryVoltage);
-        Blynk.virtualWrite(3, metheoData.humidity);
-        Blynk.virtualWrite(4, metheoData.presure);
+        Blynk.virtualWrite(V1, metheoData.temperature);
+        Blynk.virtualWrite(V2, batteryVoltage);
+        Blynk.virtualWrite(V3, metheoData.humidity);
+        Blynk.virtualWrite(V4, metheoData.presure);
+        setStatusToBlynk(validData);
         Blynk.run();
         Serial.println("Send data to Blynk OK");
     }
@@ -100,4 +101,20 @@ bool InternetConnection::sendDataToThingSpeakApi(void)
         Serial.println(status);
     }
     return status;
+}
+
+// Static method - send message status to Blynk
+void InternetConnection::setStatusToBlynk(bool validData)
+{
+    char *status = (char *)"Data are OK";
+    char *color = (char *)"#00FF00";
+
+    if (!validData)
+    {
+        status = (char *)"Data are invalid";
+        color = (char *)"#FF0000";
+    }
+
+    Blynk.virtualWrite(V5, status);
+    Blynk.setProperty(V5, "color", color);
 }

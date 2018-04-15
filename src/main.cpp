@@ -57,16 +57,17 @@ void loop()
     if (apisAreConnected)
     {
         metheoData.setData();
+        float batteryVoltage = readBatteryVoltage();
         if (metheoData.dataAreValid())
         {
-            float batteryVoltage = readBatteryVoltage();
             connection.setMeteoDataToThingSpeakObject(metheoData, batteryVoltage);
             connection.sendDataToThingSpeakApi();
-            connection.sendDataToBlynk(metheoData, batteryVoltage);
+            connection.sendDataToBlynk(metheoData, batteryVoltage, true);
         }
         else
         {
             Serial.println("MetheoData are invalid");
+            connection.sendDataToBlynk(metheoData, batteryVoltage, false);
         }
     }
     else

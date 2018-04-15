@@ -12,7 +12,8 @@ public:
   bool initializeBlynk(void);
   void setMeteoDataToThingSpeakObject(MetheoData, float);
   bool sendDataToThingSpeakApi(void);
-  void sendDataToBlynk(MetheoData, float);
+  void sendDataToBlynk(MetheoData, float, bool);
+  void setStatusToBlynk(bool);
 };
 
 #endif

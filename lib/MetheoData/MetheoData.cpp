@@ -16,6 +16,13 @@ void MetheoData::setData(void)
     presure = bme.readPressure() / 100.0;
     temperature = bme.readTemperature();
     humidity = bme.readHumidity();
+
+    Serial.print("Presure: ");
+    Serial.println(presure);
+    Serial.print("Temperature: ");
+    Serial.println(temperature);
+    Serial.print("Humidity: ");
+    Serial.println(humidity);
 }
 
 bool MetheoData::dataAreValid(void)
