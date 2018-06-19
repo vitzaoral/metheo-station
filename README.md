@@ -60,4 +60,4 @@ All update process ideas are nicely described [here](https://www.bakke.online/in
 ![PCB 4](https://github.com/vitzaoral/metheo-station/blob/master/schema/pcb_4.jpg)
 
 ### Blynk:
-![Blynk project](https://github.com/vitzaoral/metheo-station/blob/master/schema/blynk.jpg)
+![Blynk project](https://github.com/vitzaoral/metheo-station/blob/master/schema/blynk.JPG)
