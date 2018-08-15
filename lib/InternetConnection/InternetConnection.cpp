@@ -83,7 +83,7 @@ void InternetConnection::sendDataToBlynk(MetheoData metheoData, PowerController 
 
         setStatusToBlynk(validData, validData ? "Meteo data OK" : "Meteo data are invalid", V10);
 
-        // send data to Blynk for ThingSpeak webhook - meteo data channell
+        // send data to Blynk webhook for ThingSpeak - meteo data channell
         Blynk.virtualWrite(
             V20,
             metheoData.temperature, metheoData.humidity, metheoData.presure);
@@ -91,7 +91,7 @@ void InternetConnection::sendDataToBlynk(MetheoData metheoData, PowerController 
         // wait because of Blynk webhook limitation (1 request per 1 sec)
         delay(1100);
 
-        // send data to Blynk for ThingSpeak webhook - technical data channel
+        // send data to Blynk webhook for ThingSpeak - technical data channel
         Blynk.virtualWrite(
             V21,
             powerController.batteryVoltage, powerController.busVoltage, powerController.shuntVoltage,
