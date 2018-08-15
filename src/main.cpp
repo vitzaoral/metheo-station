@@ -15,7 +15,7 @@ bool apisAreConnected = false;
 
 void initializeInternetConnection()
 {
-    if (connection.initializeThingSpeak())
+    if (connection.initialize())
     {
         apisAreConnected = connection.initializeBlynk();
     }
@@ -44,8 +44,6 @@ void loop()
 
         if (metheoData.dataAreValid())
         {
-            connection.setMeteoDataToThingSpeakObject(metheoData, powerController);
-            connection.sendDataToThingSpeakApi();
             connection.sendDataToBlynk(metheoData, powerController, true);
         }
         else

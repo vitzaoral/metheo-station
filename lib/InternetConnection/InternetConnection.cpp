@@ -5,8 +5,6 @@
 WiFiClient client;
 Settings settings;
 
-const char *thingSpeakWriteApiKey = settings.thingSpeakWriteApiKey;
-const unsigned long thingSpeakChannelId = settings.thingSpeakChannelId;
 const char *ssid = settings.ssid;
 const char *password = settings.password;
 const char *blynkAuth = settings.blynkAuth;
@@ -14,8 +12,8 @@ const char *blynkAuth = settings.blynkAuth;
 // number of attempts to connecting WIFI,API etc.
 const int timeout = 10;
 
-// Initialize WiFi connection and ThingSpeak. Return true if connection is successful.
-bool InternetConnection::initializeThingSpeak(void)
+// Initialize WiFi connection. Return true if connection is successful.
+bool InternetConnection::initialize(void)
 {
     if (WiFi.SSID() != ssid)
     {
@@ -41,12 +39,15 @@ bool InternetConnection::initializeThingSpeak(void)
     }
     Serial.println("");
     Serial.println("WiFi connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+    Serial.print("Wifi signal stregth: ");
+    Serial.println(WiFi.RSSI());
 
-    ThingSpeak.begin(client);
     return true;
 }
 
-// Initialize WiFi connection and Blynk. Return true if connection is successful.
+// Initialize connection to Blynk. Return true if connection is successful.
 bool InternetConnection::initializeBlynk(void)
 {
     Serial.println("WiFi connecting to Blynk");
@@ -59,21 +60,6 @@ bool InternetConnection::initializeBlynk(void)
     return Blynk.connected();
 }
 
-void InternetConnection::setMeteoDataToThingSpeakObject(MetheoData metheoData, PowerController powerController)
-{
-    // create data to send to ThingSpeak
-    ThingSpeak.setField(1, metheoData.temperature);
-    ThingSpeak.setField(2, powerController.batteryVoltage);
-    ThingSpeak.setField(3, metheoData.presure);
-    ThingSpeak.setField(4, metheoData.humidity);
-
-    ThingSpeak.setField(5, powerController.busVoltage);
-    ThingSpeak.setField(6, powerController.shuntVoltage);
-    ThingSpeak.setField(7, powerController.loadVoltage);
-    ThingSpeak.setField(8, powerController.current_mA);
-    ThingSpeak.setField(9, powerController.power_mW);
-}
-
 void InternetConnection::sendDataToBlynk(MetheoData metheoData, PowerController powerController, bool validData)
 {
     // create data to send to Blynk
@@ -81,41 +67,40 @@ void InternetConnection::sendDataToBlynk(MetheoData metheoData, PowerController 
     {
         // meteo data
         Blynk.virtualWrite(V1, metheoData.temperature);
-        Blynk.virtualWrite(V2, powerController.batteryVoltage);
         Blynk.virtualWrite(V3, metheoData.humidity);
         Blynk.virtualWrite(V4, metheoData.presure);
         // power data
+        Blynk.virtualWrite(V2, powerController.batteryVoltage);
         Blynk.virtualWrite(V5, powerController.busVoltage);
         Blynk.virtualWrite(V6, powerController.shuntVoltage);
         Blynk.virtualWrite(V7, powerController.loadVoltage);
         Blynk.virtualWrite(V8, powerController.current_mA);
         Blynk.virtualWrite(V9, powerController.power_mW);
         // send local IP address and WIFI signal stregth
+        int signalStrenght = WiFi.RSSI();
         Blynk.virtualWrite(V11, WiFi.localIP().toString());
-        Blynk.virtualWrite(V12, WiFi.RSSI());
+        Blynk.virtualWrite(V12, signalStrenght);
 
-        setStatusToBlynk(validData, validData ? "Meteo data OK" : "Meteo data invalid", V10);
+        setStatusToBlynk(validData, validData ? "Meteo data OK" : "Meteo data are invalid", V10);
+
+        // send data to Blynk for ThingSpeak webhook - meteo data channell
+        Blynk.virtualWrite(
+            V20,
+            metheoData.temperature, metheoData.humidity, metheoData.presure);
+
+        // wait because of Blynk webhook limitation (1 request per 1 sec)
+        delay(1100);
+
+        // send data to Blynk for ThingSpeak webhook - technical data channel
+        Blynk.virtualWrite(
+            V21,
+            powerController.batteryVoltage, powerController.busVoltage, powerController.shuntVoltage,
+            powerController.loadVoltage, powerController.current_mA, powerController.power_mW, signalStrenght);
     }
     else
     {
         Serial.println("Blynk is not connected");
     }
-}
-
-bool InternetConnection::sendDataToThingSpeakApi(void)
-{
-    // Send data in one API call
-    int status = ThingSpeak.writeFields(thingSpeakChannelId, thingSpeakWriteApiKey);
-    if (status == OK_SUCCESS)
-    {
-        Serial.println("Send data to Thingspeak OK");
-    }
-    else
-    {
-        Serial.print("Error during sending data to ThingSpeak, status code: ");
-        Serial.println(status);
-    }
-    return status;
 }
 
 // Static method - send message status to Blynk
