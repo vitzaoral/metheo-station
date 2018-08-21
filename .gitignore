@@ -6,3 +6,4 @@ src/settings.cpp
 .vscode/launch.json
 .vscode/*.db
 .vscode/.browse.c_cpp.db*
+.php_scripts
