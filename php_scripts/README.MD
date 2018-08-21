@@ -1,1 +1,0 @@
-PHP scripts for presenting meteo data on www.dsvj.cz web pages
