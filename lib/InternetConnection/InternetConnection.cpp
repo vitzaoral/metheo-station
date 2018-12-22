@@ -50,12 +50,24 @@ bool InternetConnection::initialize(void)
 // Initialize connection to Blynk. Return true if connection is successful.
 bool InternetConnection::initializeBlynk(void)
 {
-    Serial.println("WiFi connecting to Blynk");
     // TODO: tohle vola wifi.begin, neda se to nejak obejit?
     Blynk.config(blynkAuth);
 
-    // timeout 3sec
-    Blynk.connect(1000);
+    Serial.println("WiFi connecting to Blynk - 1");
+    Blynk.connect();
+
+    if (!Blynk.connected())
+    {
+        Serial.println("WiFi connecting to Blynk - 2");
+        Blynk.connect();
+    }
+
+    if (!Blynk.connected())
+    {
+        Serial.println("WiFi connecting to Blynk - 3");
+        Blynk.connect();
+    }
+
     Serial.println(Blynk.connected() ? "Blynk connected" : "Timeout on Blynk or no internet connection");
     return Blynk.connected();
 }
@@ -120,7 +132,7 @@ void InternetConnection::setStatusToBlynk(bool validData, String message, int vi
 void InternetConnection::checkForUpdates()
 {
     bool updateSuccessful = false;
-    String message;
+    String message = "";
 
     String fileName = String(settings.firmwareFileName);
     String fwURL = String(settings.firmawareUrlBase);
@@ -179,9 +191,8 @@ void InternetConnection::checkForUpdates()
     }
     else
     {
-        Serial.print("Firmware version check failed, got HTTP response code: ");
-        Serial.println(httpCode);
-        message = "Version check failed, http code: " + httpCode;
+        message = "Version check failed, http code: " + String(httpCode);
+        Serial.println(message);
     }
     httpClient.end();
 

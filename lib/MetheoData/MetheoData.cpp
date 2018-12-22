@@ -5,9 +5,10 @@ Adafruit_BME280 bme;
 // Initialize and get metheorological data
 MetheoData::MetheoData()
 {
-    if (!bme.begin())
+    // BME/BMP280 has I2C address 0x76. GY-BMP208-3.3 has default address.
+    if (!bme.begin(0x76))
     {
-        Serial.println("Could not find a valid BMP100 sensor on oaddress 0x45!");
+        Serial.println("Could not find a valid temperature sensor!");
     }
 }
 
@@ -28,6 +29,5 @@ void MetheoData::setData(void)
 bool MetheoData::dataAreValid(void)
 {
     return temperature <= 100.0 && temperature >= -100.0 &&
-           humidity <= 100.0 && humidity >= 0.0 &&
-           presure <= 1200.0 && presure >= 800.0;
+           humidity <= 100.0 && humidity >= 0.0 && presure > 700;
 }
