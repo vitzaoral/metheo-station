@@ -6,45 +6,77 @@ WiFiClient client;
 Settings settings;
 
 const char *ssid = settings.ssid;
+const char *ssid2 = settings.ssid2;
 const char *password = settings.password;
 const char *blynkAuth = settings.blynkAuth;
 
 // number of attempts to connecting WIFI,API etc.
-const int timeout = 10;
+const int timeout = 20;
 
 // Initialize WiFi connection. Return true if connection is successful.
 bool InternetConnection::initialize(void)
 {
-    if (WiFi.SSID() != ssid)
+    int n = WiFi.scanNetworks();
+    Serial.println("scan done");
+    if (n == 0)
     {
-        WiFi.begin(ssid, password);
-        WiFi.persistent(true);
-        WiFi.setAutoConnect(true);
-        WiFi.setAutoReconnect(true);
+        Serial.println("no networks found");
+        return false;
     }
-
-    Serial.print("WiFi connecting to: ");
-    Serial.println(ssid);
-    int i = 0;
-    while (WiFi.status() != WL_CONNECTED)
+    else
     {
-        delay(500);
-        Serial.print(".");
-        if (i == timeout)
+        Serial.print(n);
+        Serial.println(" networks found");
+        int strength = 1000;
+        String usedSSID = "";
+
+        // connect to the strongest known WiFi
+        for (int i = 0; i < n; ++i)
         {
-            Serial.println("Timeout on WiFi connection");
-            return false;
-        }
-        i++;
-    }
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-    Serial.print("Wifi signal stregth: ");
-    Serial.println(WiFi.RSSI());
+            int rssi = WiFi.RSSI(i);
+            String actualSsid = WiFi.SSID(i);
+            // Print SSID and RSSI for each network found
+            Serial.print(i + 1);
+            Serial.print(": ");
+            Serial.print(actualSsid);
+            Serial.print(" (");
+            Serial.print(rssi);
+            Serial.println(" dBi)");
 
-    return true;
+            if (abs(rssi) < strength && (actualSsid == ssid || actualSsid == ssid2))
+            {
+                usedSSID = actualSsid;
+                strength = abs(rssi);
+            }
+        }
+
+        WiFi.begin(usedSSID.c_str(), password);
+
+        Serial.print("WiFi connecting to: ");
+        Serial.println(usedSSID);
+
+        int i = 0;
+        while (WiFi.status() != WL_CONNECTED)
+        {
+            delay(500);
+            Serial.print(".");
+            if (i == timeout)
+            {
+                Serial.println("Timeout on WiFi connection");
+                return false;
+            }
+            i++;
+        }
+        Serial.println("");
+        Serial.print("WiFi connected to:");
+        Serial.println(WiFi.SSID());
+        Serial.print("IP address: ");
+        Serial.println(WiFi.localIP());
+        Serial.print("Wifi signal stregth: ");
+        Serial.println(WiFi.RSSI());
+
+        return true;
+    }
 }
 
 // Initialize connection to Blynk. Return true if connection is successful.
@@ -88,10 +120,11 @@ void InternetConnection::sendDataToBlynk(MetheoData metheoData, PowerController 
         Blynk.virtualWrite(V7, powerController.loadVoltage);
         Blynk.virtualWrite(V8, powerController.current_mA);
         Blynk.virtualWrite(V9, powerController.power_mW);
-        // send local IP address and WIFI signal stregth
+        // send local IP address, WIFI signal stregth and WIFI name
         int signalStrenght = WiFi.RSSI();
         Blynk.virtualWrite(V11, WiFi.localIP().toString());
         Blynk.virtualWrite(V12, signalStrenght);
+        Blynk.virtualWrite(V15, WiFi.SSID());
 
         setStatusToBlynk(validData, validData ? "Meteo data OK" : "Meteo data are invalid", V10);
 

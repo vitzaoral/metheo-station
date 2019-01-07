@@ -8,7 +8,7 @@ InternetConnection connection;
 PowerController powerController;
 
 // Deep sleep interval in minutes
-const int deepSleepInterval = 1;
+const int deepSleepInterval = 2;
 
 // Connections to APIs are OK
 bool apisAreConnected = false;

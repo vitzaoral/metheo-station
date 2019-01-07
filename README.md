@@ -7,6 +7,7 @@ IoT meteo station system based on ESP8266 Wemos D1 Mini Pro. Checks temperature,
 struct Settings
 {
     const char *ssid = "WIFI ssid";
+    const char *ssid2 = "WIFI ssid2";
     const char *password = "WIFI password";
     const char *blynkAuth = "You Blynk Auth";
     const char *version = "1.0.0";
