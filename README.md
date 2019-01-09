@@ -11,9 +11,10 @@ struct Settings
     const char *password = "WIFI password";
     const char *blynkAuth = "You Blynk Auth";
     const char *version = "1.0.0";
-    const char *firmawareUrlBase = "http://your-address.com/";
+    const char *firmawareUrlBase = "http://your-address.com/"; // in case of https you must have server certificate fingerprint...
     const char *firmwareFileName = "meteoStation";
-    const char *firmwareVersionFileName = ".version";
+    const char *firmwareVersionFileNameExt = ".version";
+    const char *firmwareFileNameExt = ".bin";
 };
 ```
 

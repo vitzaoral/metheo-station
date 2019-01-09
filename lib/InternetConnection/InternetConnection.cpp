@@ -171,7 +171,7 @@ void InternetConnection::checkForUpdates()
     String fwURL = String(settings.firmawareUrlBase);
     fwURL.concat(fileName);
     String fwVersionURL = fwURL;
-    fwVersionURL.concat(String(settings.firmwareVersionFileName));
+    fwVersionURL.concat(String(settings.firmwareVersionFileNameExt));
 
     Serial.println("Checking for firmware updates.");
     Serial.print("Firmware version URL: ");
@@ -180,6 +180,7 @@ void InternetConnection::checkForUpdates()
     HTTPClient httpClient;
     httpClient.begin(fwVersionURL);
     int httpCode = httpClient.GET();
+
     if (httpCode == 200)
     {
         String newFwVersion = httpClient.getString();
@@ -194,7 +195,7 @@ void InternetConnection::checkForUpdates()
             Serial.println("Preparing to update");
 
             String fwImageURL = fwURL;
-            fwImageURL.concat(".bin");
+            fwImageURL.concat(settings.firmwareFileNameExt);
             t_httpUpdate_return ret = ESPhttpUpdate.update(fwImageURL);
 
             switch (ret)
@@ -224,7 +225,7 @@ void InternetConnection::checkForUpdates()
     }
     else
     {
-        message = "Version check failed, http code: " + String(httpCode);
+        message = "Version check failed, http code: " + String(httpCode) + " ,message: " + httpClient.errorToString(httpCode);
         Serial.println(message);
     }
     httpClient.end();
