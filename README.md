@@ -1,6 +1,6 @@
 # Solar powered meteo station with ESP8266 Wemos D1 Mini Pro
 
-## 🚀 12.2002 UPDATE TO BLYNK 2.0 
+## 🚀 12.2022 - UPDATE TO BLYNK 2.0 🚀
 Project was updated to the new version of [Blynk 2.0](https://docs.blynk.io/en/)
 
 IoT meteo station system based on ESP8266 Wemos D1 Mini Pro. Checks temperature, humidity and pressure. Data are sent to Blynk and ThingSpeak channel (via [Webhook widget](http://docs.blynk.cc/#widgets-other-webhook)) every minute, then is used deep sleep. Project is free to use, coded in C++, created in Visual Code with [PlatfomIO IDE](http://docs.platformio.org/en/latest/ide/vscode.html).
