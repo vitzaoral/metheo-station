@@ -1,3 +1,8 @@
+#define BLYNK_PRINT Serial
+#define BLYNK_TEMPLATE_ID "TMPLHWEX5tqq"
+#define BLYNK_DEVICE_NAME "Meteostanice Grun"
+#define BLYNK_FIRMWARE_VERSION "2.0.3"
+
 #include "InternetConnection.h"
 #include "../../src/settings.cpp"
 #include <BlynkSimpleEsp8266.h>
@@ -6,87 +11,63 @@ WiFiClient client;
 Settings settings;
 
 const char *ssid = settings.ssid;
-const char *ssid2 = settings.ssid2;
 const char *password = settings.password;
 const char *blynkAuth = settings.blynkAuth;
+const char *version = settings.version;
 
 // number of attempts to connecting WIFI,API etc.
 const int timeout = 20;
 
-// Initialize WiFi connection. Return true if connection is successful.
-bool InternetConnection::initialize(void)
+String overTheAirURL = "";
+
+BLYNK_WRITE(InternalPinOTA)
 {
-    int n = WiFi.scanNetworks();
-    Serial.println("scan done");
-    if (n == 0)
+    Serial.println("OTA Started");
+    overTheAirURL = param.asString();
+    Serial.print("overTheAirURL = ");
+    Serial.println(overTheAirURL);
+
+    HTTPClient http;
+    http.begin(client, overTheAirURL);
+
+    t_httpUpdate_return ret = ESPhttpUpdate.update(client, overTheAirURL);
+    switch (ret)
     {
-        Serial.println("no networks found");
-        return false;
-    }
-    else
-    {
-        Serial.print(n);
-        Serial.println(" networks found");
-        int strength = 1000;
-        String usedSSID = "";
-
-        // connect to the strongest known WiFi
-        for (int i = 0; i < n; ++i)
-        {
-            int rssi = WiFi.RSSI(i);
-            String actualSsid = WiFi.SSID(i);
-            // Print SSID and RSSI for each network found
-            Serial.print(i + 1);
-            Serial.print(": ");
-            Serial.print(actualSsid);
-            Serial.print(" (");
-            Serial.print(rssi);
-            Serial.println(" dBi)");
-
-            if (abs(rssi) < strength && (actualSsid == ssid || actualSsid == ssid2))
-            {
-                usedSSID = actualSsid;
-                strength = abs(rssi);
-            }
-        }
-
-        WiFi.begin(usedSSID.c_str(), password);
-
-        Serial.print("WiFi connecting to: ");
-        Serial.println(usedSSID);
-
-        int i = 0;
-        while (WiFi.status() != WL_CONNECTED)
-        {
-            delay(500);
-            Serial.print(".");
-            if (i == timeout)
-            {
-                Serial.println("Timeout on WiFi connection");
-                return false;
-            }
-            i++;
-        }
-        Serial.println("");
-        Serial.print("WiFi connected to:");
-        Serial.println(WiFi.SSID());
-        Serial.print("IP address: ");
-        Serial.println(WiFi.localIP());
-        Serial.print("Wifi signal stregth: ");
-        Serial.println(WiFi.RSSI());
-
-        return true;
+    case HTTP_UPDATE_FAILED:
+        Serial.println("[update] Update failed.");
+        break;
+    case HTTP_UPDATE_NO_UPDATES:
+        Serial.println("[update] Update no Update.");
+        break;
+    case HTTP_UPDATE_OK:
+        Serial.println("[update] Update ok."); // may not be called since we reboot the ESP
+        break;
     }
 }
 
 // Initialize connection to Blynk. Return true if connection is successful.
 bool InternetConnection::initializeBlynk(void)
 {
-    // TODO: tohle vola wifi.begin, neda se to nejak obejit?
-    Blynk.config(blynkAuth);
+    int connAttempts = 0;
+    Serial.println("\r\nTry connecting to: " + String(ssid));
 
-    Serial.println("WiFi connecting to Blynk - 1");
-    Blynk.connect();
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+        if (connAttempts > 30)
+        {
+            Serial.println("Error - couldn't connect to WIFI");
+            break;
+        }
+
+        connAttempts++;
+    }
+
+    Blynk.config(blynkAuth);
+    Blynk.connect(2000);
 
     if (!Blynk.connected())
     {
@@ -125,16 +106,14 @@ void InternetConnection::sendDataToBlynk(MetheoData metheoData, PowerController 
         Blynk.virtualWrite(V11, WiFi.localIP().toString());
         Blynk.virtualWrite(V12, signalStrenght);
         Blynk.virtualWrite(V15, WiFi.SSID());
+        Blynk.virtualWrite(V13, version);
 
         setStatusToBlynk(validData, validData ? "Meteo data OK" : "Meteo data are invalid", V10);
 
-        // send data to Blynk webhook for ThingSpeak - meteo data channell
+        // set meteo data for webcamera (php scripts) and Blynk webhook for ThingSpeak - meteo data channell
         Blynk.virtualWrite(
             V20,
-            metheoData.temperature, metheoData.humidity, metheoData.presure);
-
-        // wait because of Blynk webhook limitation (1 request per 1 sec)
-        delay(1100);
+            metheoData.temperature, "&", metheoData.humidity, "&", metheoData.presure);
 
         // send data to Blynk webhook for ThingSpeak - technical data channel
         Blynk.virtualWrite(
@@ -160,78 +139,6 @@ void InternetConnection::setStatusToBlynk(bool validData, String message, int vi
 
     Blynk.virtualWrite(virtualPin, message);
     Blynk.setProperty(virtualPin, "color", color);
-}
-
-void InternetConnection::checkForUpdates()
-{
-    bool updateSuccessful = false;
-    String message = "";
-
-    String fileName = String(settings.firmwareFileName);
-    String fwURL = String(settings.firmawareUrlBase);
-    fwURL.concat(fileName);
-    String fwVersionURL = fwURL;
-    fwVersionURL.concat(String(settings.firmwareVersionFileNameExt));
-
-    Serial.println("Checking for firmware updates.");
-    Serial.print("Firmware version URL: ");
-    Serial.println(fwVersionURL);
-
-    HTTPClient httpClient;
-    httpClient.begin(fwVersionURL);
-    int httpCode = httpClient.GET();
-
-    if (httpCode == 200)
-    {
-        String newFwVersion = httpClient.getString();
-
-        Serial.print("Current firmware version: ");
-        Serial.println(settings.version);
-        Serial.print("Available firmware version: ");
-        Serial.println(newFwVersion);
-
-        if (String(settings.version) != newFwVersion)
-        {
-            Serial.println("Preparing to update");
-
-            String fwImageURL = fwURL;
-            fwImageURL.concat(settings.firmwareFileNameExt);
-            t_httpUpdate_return ret = ESPhttpUpdate.update(fwImageURL);
-
-            switch (ret)
-            {
-            case HTTP_UPDATE_OK:
-                message = "Successfuly updated!";
-                updateSuccessful = true;
-                Serial.println(message);
-                break;
-            case HTTP_UPDATE_FAILED:
-                Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
-                message = "Update failed: " + String(ESPhttpUpdate.getLastErrorString());
-                break;
-
-            case HTTP_UPDATE_NO_UPDATES:
-                message = "No updates";
-                Serial.println(message);
-                break;
-            }
-        }
-        else
-        {
-            message = "Already on latest version";
-            Serial.println(message);
-            updateSuccessful = true;
-        }
-    }
-    else
-    {
-        message = "Version check failed, http code: " + String(httpCode) + " ,message: " + httpClient.errorToString(httpCode);
-        Serial.println(message);
-    }
-    httpClient.end();
-
-    Blynk.virtualWrite(V13, settings.version);
-    setStatusToBlynk(updateSuccessful, message, V14);
 }
 
 void InternetConnection::runBlynk()

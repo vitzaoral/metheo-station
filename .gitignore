@@ -7,3 +7,14 @@ src/settings.cpp
 .vscode/*.db
 .vscode/.browse.c_cpp.db*
 php_scripts/*
+.DS_Store
+.pio/
+lib/.DS_Store
+/node_modules/
+/dist
+*.vsix
+yarn.lock
+package-lock.json
+*.dict
+.vscode/settings.json
+.pio

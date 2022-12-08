@@ -15,10 +15,7 @@ bool apisAreConnected = false;
 
 void initializeInternetConnection()
 {
-    if (connection.initialize())
-    {
-        apisAreConnected = connection.initializeBlynk();
-    }
+    apisAreConnected = connection.initializeBlynk();
 }
 
 void deepSleep()
@@ -30,7 +27,8 @@ void deepSleep()
 // Set up environment before loop
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(115200);
+    Serial.println("Start initialize WiFi connection");
     initializeInternetConnection();
 }
 
@@ -51,7 +49,6 @@ void loop()
             Serial.println("MetheoData are invalid");
             connection.sendDataToBlynk(metheoData, powerController, false);
         }
-        connection.checkForUpdates();
         connection.runBlynk();
     }
     else
