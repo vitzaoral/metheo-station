@@ -1,7 +1,7 @@
 #define BLYNK_PRINT Serial
 #define BLYNK_TEMPLATE_ID "TMPLHWEX5tqq"
 #define BLYNK_DEVICE_NAME "Meteostanice Grun"
-#define BLYNK_FIRMWARE_VERSION "2.0.3"
+#define BLYNK_FIRMWARE_VERSION "2.0.4"
 
 #include "InternetConnection.h"
 #include "../../src/settings.cpp"
